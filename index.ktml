@@ -1,0 +1,1024 @@
+
+
+
+
+
+<!DOCTYPE html> <html lang="en"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>STIL Analyzer Pro — MY_DES Scan Diagnostics</title> <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600
+
+pasted
+
+
+seee and debug this file
+
+You are out of free messages until 5:30 PM
+Upgrade
+
+Pasted content
+51.64 KB •1,004 lines
+•
+Formatting may be inconsistent from source
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>STIL Analyzer Pro — MY_DES Scan Diagnostics</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:       #070b14;
+    --surface:  #0d1525;
+    --card:     #111d33;
+    --border:   #1e3055;
+    --accent:   #00d4ff;
+    --accent2:  #7c3aed;
+    --accent3:  #f59e0b;
+    --ok:       #10b981;
+    --warn:     #f59e0b;
+    --err:      #ef4444;
+    --text:     #e2e8f0;
+    --muted:    #64748b;
+    --font-mono: 'Space Mono', monospace;
+    --font-ui:   'Syne', sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-ui);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── Grid bg ── */
+  body::before {
+    content:'';
+    position:fixed; inset:0; pointer-events:none;
+    background-image:
+      linear-gradient(rgba(0,212,255,.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,212,255,.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    z-index:0;
+  }
+
+  /* ── Nav ── */
+  nav {
+    position: sticky; top:0; z-index: 100;
+    background: rgba(7,11,20,.9);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 2rem; height: 56px;
+  }
+  .brand { display:flex; align-items:center; gap:.75rem; }
+  .brand-icon {
+    width:28px; height:28px; border-radius:6px;
+    background: linear-gradient(135deg,var(--accent),var(--accent2));
+    display:flex; align-items:center; justify-content:center; font-size:14px;
+  }
+  .brand-name { font-size:.9rem; font-weight:800; letter-spacing:.04em; color:var(--accent); }
+  .brand-sub { font-size:.65rem; color:var(--muted); letter-spacing:.1em; text-transform:uppercase; margin-top:-2px; }
+  .nav-pills { display:flex; gap:.5rem; }
+  .nav-pill {
+    padding:.35rem .9rem; border-radius:20px; font-size:.75rem; font-weight:700;
+    letter-spacing:.06em; text-transform:uppercase; cursor:pointer;
+    border: 1px solid var(--border); background:transparent; color:var(--muted);
+    transition: all .2s;
+  }
+  .nav-pill:hover, .nav-pill.active { border-color:var(--accent); color:var(--accent); background:rgba(0,212,255,.07); }
+  .exec-btn {
+    padding:.4rem 1.1rem; border-radius:6px; font-size:.75rem; font-weight:700;
+    letter-spacing:.06em; text-transform:uppercase; cursor:pointer;
+    background: linear-gradient(135deg,var(--accent),var(--accent2));
+    color:#fff; border:none; font-family:var(--font-ui);
+    box-shadow: 0 0 16px rgba(0,212,255,.25);
+    transition: box-shadow .2s;
+  }
+  .exec-btn:hover { box-shadow: 0 0 28px rgba(0,212,255,.45); }
+
+  /* ── Tabs ── */
+  .tabs { display:flex; gap:0; border-bottom:1px solid var(--border); margin-bottom:2rem; }
+  .tab {
+    padding:.7rem 1.5rem; font-size:.8rem; font-weight:700;
+    letter-spacing:.08em; text-transform:uppercase; cursor:pointer;
+    color:var(--muted); border-bottom:2px solid transparent;
+    transition: all .2s; background:transparent; border-top:none; border-left:none; border-right:none;
+    font-family:var(--font-ui);
+  }
+  .tab:hover { color:var(--text); }
+  .tab.active { color:var(--accent); border-bottom-color:var(--accent); }
+  .tab-panel { display:none; animation: fadeIn .3s ease; }
+  .tab-panel.active { display:block; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+
+  /* ── Layout ── */
+  main { position:relative; z-index:1; padding:1.5rem 2rem 4rem; max-width:1600px; margin:auto; }
+  .section-label {
+    font-size:.65rem; font-weight:700; letter-spacing:.15em; text-transform:uppercase;
+    color:var(--accent); margin-bottom:1rem; display:flex; align-items:center; gap:.5rem;
+  }
+  .section-label::after { content:''; flex:1; height:1px; background:var(--border); }
+
+  /* ── Cards ── */
+  .card {
+    background:var(--card); border:1px solid var(--border);
+    border-radius:10px; padding:1.25rem 1.5rem;
+    position:relative; overflow:hidden;
+  }
+  .card::before {
+    content:''; position:absolute; top:0; left:0; right:0; height:2px;
+    background:linear-gradient(90deg,var(--accent2),var(--accent),transparent);
+  }
+  .card-title { font-size:.7rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin-bottom:.5rem; }
+  .card-value { font-size:2rem; font-weight:800; color:var(--text); line-height:1; }
+  .card-sub { font-size:.7rem; color:var(--muted); margin-top:.3rem; font-family:var(--font-mono); }
+
+  .stat-badge {
+    display:inline-flex; align-items:center; gap:.4rem;
+    padding:.25rem .7rem; border-radius:20px;
+    font-size:.7rem; font-weight:700; letter-spacing:.05em; font-family:var(--font-mono);
+  }
+  .badge-ok { background:rgba(16,185,129,.1); color:var(--ok); border:1px solid rgba(16,185,129,.25); }
+  .badge-info { background:rgba(0,212,255,.1); color:var(--accent); border:1px solid rgba(0,212,255,.2); }
+  .badge-warn { background:rgba(245,158,11,.1); color:var(--warn); border:1px solid rgba(245,158,11,.2); }
+
+  /* ── Stats grid ── */
+  .stats-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:1rem; margin-bottom:2rem; }
+
+  /* ── Summary Table ── */
+  .summary-table { width:100%; border-collapse:collapse; font-family:var(--font-mono); font-size:.8rem; }
+  .summary-table th {
+    text-align:left; padding:.6rem 1rem; font-size:.65rem; letter-spacing:.1em;
+    text-transform:uppercase; color:var(--muted); border-bottom:1px solid var(--border);
+    background:rgba(0,0,0,.2);
+  }
+  .summary-table td { padding:.7rem 1rem; border-bottom:1px solid rgba(255,255,255,.04); }
+  .summary-table tr:hover td { background:rgba(0,212,255,.03); }
+  .summary-table td:first-child { color:var(--muted); font-size:.75rem; }
+  .summary-table td:last-child { color:var(--text); font-weight:700; }
+  .highlight { color:var(--accent) !important; }
+
+  /* ── Chain Table ── */
+  .chain-table { width:100%; border-collapse:collapse; font-family:var(--font-mono); font-size:.75rem; }
+  .chain-table th {
+    padding:.5rem .75rem; font-size:.6rem; letter-spacing:.1em; text-transform:uppercase;
+    color:var(--muted); border-bottom:1px solid var(--border); background:rgba(0,0,0,.25); text-align:left;
+  }
+  .chain-table td { padding:.55rem .75rem; border-bottom:1px solid rgba(255,255,255,.04); }
+  .chain-table tr:hover td { background:rgba(0,212,255,.04); cursor:pointer; }
+  .ch-num { color:var(--accent); font-weight:700; }
+  .ch-len {
+    display:inline-block; width:120px; height:8px; border-radius:4px;
+    background:var(--border); position:relative; overflow:hidden; vertical-align:middle; margin-right:.5rem;
+  }
+  .ch-len-fill {
+    position:absolute; left:0; top:0; height:100%; border-radius:4px;
+    background:linear-gradient(90deg,var(--accent2),var(--accent));
+  }
+  .ch-in { color:var(--ok); }
+  .ch-out { color:var(--warn); }
+
+  /* ── Architecture Diagram SVG ── */
+  #arch-diagram { width:100%; border-radius:10px; border:1px solid var(--border); overflow:hidden; background:var(--surface); }
+
+  /* ── Fault Simulator ── */
+  .fault-grid { display:grid; grid-template-columns: 1fr 1fr; gap:1.5rem; }
+  .fault-controls { display:flex; flex-direction:column; gap:1rem; }
+  .ctrl-label { font-size:.7rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin-bottom:.35rem; }
+  select, input[type=number], input[type=range] {
+    width:100%; background:var(--surface); border:1px solid var(--border);
+    color:var(--text); padding:.5rem .75rem; border-radius:6px;
+    font-family:var(--font-mono); font-size:.8rem; outline:none;
+    transition:border-color .2s;
+  }
+  select:focus, input:focus { border-color:var(--accent); }
+  .run-btn {
+    padding:.65rem 1.2rem; border-radius:6px; border:none;
+    background:linear-gradient(135deg,var(--accent2),var(--accent));
+    color:#fff; font-family:var(--font-ui); font-weight:700; font-size:.8rem;
+    letter-spacing:.06em; text-transform:uppercase; cursor:pointer;
+    box-shadow:0 0 20px rgba(124,58,237,.3); transition:box-shadow .2s;
+  }
+  .run-btn:hover { box-shadow:0 0 32px rgba(0,212,255,.4); }
+
+  /* ── Fault log ── */
+  .fault-log {
+    background:rgba(0,0,0,.4); border:1px solid var(--border); border-radius:8px;
+    padding:1rem; font-family:var(--font-mono); font-size:.72rem;
+    height:340px; overflow-y:auto; line-height:1.8;
+  }
+  .fault-log::-webkit-scrollbar { width:4px; }
+  .fault-log::-webkit-scrollbar-thumb { background:var(--border); border-radius:4px; }
+  .log-ok { color:var(--ok); }
+  .log-err { color:var(--err); }
+  .log-warn { color:var(--warn); }
+  .log-info { color:var(--accent); }
+  .log-dim { color:var(--muted); }
+
+  /* ── Heatmap ── */
+  #heatmap-canvas { width:100%; border-radius:8px; border:1px solid var(--border); }
+  .heatmap-legend { display:flex; align-items:center; gap:1rem; margin-top:.75rem; font-family:var(--font-mono); font-size:.7rem; color:var(--muted); }
+  .legend-bar {
+    flex:1; height:12px; border-radius:4px;
+    background:linear-gradient(90deg,#1a1a2e,#7c3aed,#ef4444,#f59e0b);
+  }
+
+  /* ── Progress ring ── */
+  .ring-wrap { display:flex; flex-direction:column; align-items:center; gap:.5rem; }
+  .ring-label { font-size:.65rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); }
+  .ring-val { font-size:1.4rem; font-weight:800; color:var(--accent); font-family:var(--font-mono); }
+
+  /* ── Two-col layout ── */
+  .two-col { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; }
+  .three-col { display:grid; grid-template-columns:repeat(3,1fr); gap:1.5rem; }
+
+  /* ── Glow ping ── */
+  .ping {
+    display:inline-block; width:8px; height:8px; border-radius:50%;
+    background:var(--ok); box-shadow:0 0 8px var(--ok);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(.85)} }
+
+  .spacer { height:1.5rem; }
+
+  /* scrollable chain list */
+  .chain-scroll { max-height:460px; overflow-y:auto; border-radius:8px; }
+  .chain-scroll::-webkit-scrollbar { width:4px; }
+  .chain-scroll::-webkit-scrollbar-thumb { background:var(--border); border-radius:4px; }
+
+  /* Responsive */
+  @media(max-width:900px) {
+    .two-col,.three-col,.fault-grid { grid-template-columns:1fr; }
+    .stats-grid { grid-template-columns:repeat(2,1fr); }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="brand">
+    <div class="brand-icon">⬡</div>
+    <div>
+      <div class="brand-name">STIL ANALYZER PRO</div>
+      <div class="brand-sub">Enterprise Scan Diagnostics</div>
+    </div>
+  </div>
+  <div class="nav-pills">
+    <button class="nav-pill active" onclick="showTab('summary')">Summary</button>
+    <button class="nav-pill" onclick="showTab('arch')">Architecture</button>
+    <button class="nav-pill" onclick="showTab('chains')">Chains</button>
+    <button class="nav-pill" onclick="showTab('fault')">Fault Sim</button>
+    <button class="nav-pill" onclick="showTab('heatmap')">Heatmap</button>
+  </div>
+  <button class="exec-btn">⚡ Execute Pipeline</button>
+</nav>
+
+<main>
+
+<!-- ══════════════════════════════════════════════════════
+     TAB: SUMMARY
+═══════════════════════════════════════════════════════════ -->
+<div id="tab-summary" class="tab-panel active">
+  <div class="section-label">STIL File Summary — MY_DES Stuck-At EDT Scan</div>
+
+  <!-- KPI Cards -->
+  <div class="stats-grid">
+    <div class="card">
+      <div class="card-title">Total Patterns</div>
+      <div class="card-value">29,625</div>
+      <div class="card-sub">idx 0 → 29624</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Test Type</div>
+      <div class="card-value" style="font-size:1.2rem;line-height:1.3">EDT Scan</div>
+      <div class="card-sub">edt_external = ON · stuck_at</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Scan Chains</div>
+      <div class="card-value" style="color:var(--accent)">23</div>
+      <div class="card-sub">core_inst (ch1–ch22) + phy_inst (ch1)</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Scan Length / Chain</div>
+      <div class="card-value" style="color:var(--accent2)">234</div>
+      <div class="card-sub">Flip-Flops per chain (uniform)</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Total Scan FFs</div>
+      <div class="card-value">5,382</div>
+      <div class="card-sub">23 chains × 234 FF</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Clock Domain</div>
+      <div class="card-value" style="font-size:1.1rem">ETH_RXCLK</div>
+      <div class="card-sub">ScanMasterClock · all chains</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Period</div>
+      <div class="card-value" style="font-size:1.3rem">20 ns</div>
+      <div class="card-sub">20000 ps · tset_gen_tp1</div>
+    </div>
+    <div class="card">
+      <div class="card-title">JTAG Access</div>
+      <div class="card-value" style="font-size:1.1rem">TCK / TDI</div>
+      <div class="card-sub">TRSTN · TDO · TMS</div>
+    </div>
+  </div>
+
+  <!-- Full summary table -->
+  <div class="section-label">Structured STIL Metadata</div>
+  <div class="card" style="padding:0;overflow:hidden">
+    <table class="summary-table">
+      <thead><tr><th>Parameter</th><th>Value</th></tr></thead>
+      <tbody>
+        <tr><td>Design Title</td><td class="highlight">MY_TOP_MY_DES_stuck_with_init_stil_gz</td></tr>
+        <tr><td>Source Tool</td><td>Tessent Shell 2021.3</td></tr>
+        <tr><td>Date Generated</td><td>Thu Sep 4 15:16:39 2025</td></tr>
+        <tr><td>STIL Version</td><td>1.0</td></tr>
+        <tr><td>Test Set Type</td><td class="highlight">EDT_SCAN_TEST (Stuck-At)</td></tr>
+        <tr><td>Total Patterns</td><td class="highlight">29,625 (pattern_begin=0, pattern_end=29624)</td></tr>
+        <tr><td>EDT External</td><td>ON</td></tr>
+        <tr><td>Serial Flag</td><td>OFF</td></tr>
+        <tr><td>One Setup</td><td>ON</td></tr>
+        <tr><td>No Initialization</td><td>OFF</td></tr>
+        <tr><td>Pad Value</td><td>0</td></tr>
+        <tr><td>Pattern Checksum</td><td>1</td></tr>
+        <tr><td>Total Scan Chains</td><td class="highlight">23</td></tr>
+        <tr><td>Scan Length per Chain</td><td class="highlight">234 FF (uniform)</td></tr>
+        <tr><td>Total Scan Flip-Flops</td><td class="highlight">5,382 FF (23 × 234)</td></tr>
+        <tr><td>Series Connected</td><td>234 FF per chain (serial shift)</td></tr>
+        <tr><td>Parallel Connected</td><td>23 chains (parallel EDT channels)</td></tr>
+        <tr><td>Compression Type</td><td class="highlight">EDT (Embedded Deterministic Test)</td></tr>
+        <tr><td>Scan Master Clock</td><td>ETH_RXCLK</td></tr>
+        <tr><td>Tester Clock</td><td>TCK (JTAG)</td></tr>
+        <tr><td>Timing Period</td><td>20,000 ps (50 MHz)</td></tr>
+        <tr><td>PatternBurst</td><td>scanpats → scan_test</td></tr>
+        <tr><td>WaveformTable</td><td>tset_gen_tp1</td></tr>
+        <tr><td>JTAG Signals</td><td>TDI · TDO · TMS · TCK · TRSTN</td></tr>
+        <tr><td>EDT Core Instance</td><td>core_des__edt_int_slow__edt_MY_DES_edt_tessent_edt_core_inst</td></tr>
+        <tr><td>EDT Phy Instance</td><td>core_des__edt_int_slow__edt_MY_DES_edt_tessent_edt_phy_inst</td></tr>
+        <tr><td>tcd_signature</td><td style="font-family:var(--font-mono);font-size:.7rem">e1611a559a9a80a5f5773bfa8f29e0ff</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="spacer"></div>
+
+  <!-- Architecture Summary cards -->
+  <div class="section-label">Architecture Summary</div>
+  <div class="three-col">
+    <div class="card">
+      <div class="card-title">Compression</div>
+      <div style="margin-top:.5rem;display:flex;flex-direction:column;gap:.5rem">
+        <span class="stat-badge badge-info">EDT (Embedded Deterministic Test)</span>
+        <span class="stat-badge badge-ok">External EDT Enabled</span>
+        <span class="stat-badge badge-ok">Tessent EDT Core</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Access Method</div>
+      <div style="margin-top:.5rem;display:flex;flex-direction:column;gap:.5rem">
+        <span class="stat-badge badge-info">JTAG / TAP Controller</span>
+        <span class="stat-badge badge-warn">TCK · TDI · TDO · TMS</span>
+        <span class="stat-badge badge-ok">TRSTN — Active Low Reset</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Clock / Scan Stats</div>
+      <div style="margin-top:.5rem;display:flex;flex-direction:column;gap:.5rem">
+        <span class="stat-badge badge-info">ScanMasterClock: ETH_RXCLK</span>
+        <span class="stat-badge badge-warn">Tester Clock: TCK</span>
+        <span class="stat-badge badge-ok">ScanInversion: 0 (all chains)</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     TAB: ARCHITECTURE DIAGRAM
+═══════════════════════════════════════════════════════════ -->
+<div id="tab-arch" class="tab-panel">
+  <div class="section-label">Hardware Architecture Topology</div>
+  <svg id="arch-diagram" viewBox="0 0 1100 700" xmlns="http://www.w3.org/2000/svg" font-family="'Space Mono',monospace">
+    <defs>
+      <linearGradient id="gAccent" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="#7c3aed"/>
+        <stop offset="100%" stop-color="#00d4ff"/>
+      </linearGradient>
+      <linearGradient id="gCard" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#111d33"/>
+        <stop offset="100%" stop-color="#0d1525"/>
+      </linearGradient>
+      <filter id="glow">
+        <feGaussianBlur stdDeviation="3" result="blur"/>
+        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+      <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L8,3 z" fill="#00d4ff" opacity=".7"/>
+      </marker>
+      <marker id="arrow2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L8,3 z" fill="#7c3aed" opacity=".7"/>
+      </marker>
+    </defs>
+
+    <!-- Background -->
+    <rect width="1100" height="700" fill="#070b14"/>
+    <!-- Grid -->
+    <g stroke="#1e3055" stroke-width=".5" opacity=".4">
+      <line x1="0" y1="80" x2="1100" y2="80"/>
+      <line x1="0" y1="200" x2="1100" y2="200"/>
+      <line x1="0" y1="320" x2="1100" y2="320"/>
+      <line x1="0" y1="440" x2="1100" y2="440"/>
+      <line x1="0" y1="560" x2="1100" y2="560"/>
+      <line x1="0" y1="640" x2="1100" y2="640"/>
+    </g>
+
+    <!-- ── JTAG TAP Controller ── -->
+    <rect x="30" y="20" width="140" height="50" rx="6" fill="url(#gCard)" stroke="#1e3055" stroke-width="1"/>
+    <text x="100" y="40" text-anchor="middle" fill="#00d4ff" font-size="9" font-weight="bold">JTAG</text>
+    <text x="100" y="55" text-anchor="middle" fill="#64748b" font-size="7">TDI·TDO·TMS·TCK·TRSTN</text>
+
+    <!-- ── TAP Controller ── -->
+    <rect x="210" y="20" width="140" height="50" rx="6" fill="url(#gCard)" stroke="#1e3055" stroke-width="1"/>
+    <text x="280" y="40" text-anchor="middle" fill="#00d4ff" font-size="9" font-weight="bold">TAP CONTROLLER</text>
+    <text x="280" y="55" text-anchor="middle" fill="#64748b" font-size="7">IEEE 1149.1 Compliant</text>
+
+    <!-- ── EDT Engine ── -->
+    <rect x="390" y="10" width="200" height="70" rx="8" fill="rgba(124,58,237,.15)" stroke="#7c3aed" stroke-width="1.5" filter="url(#glow)"/>
+    <text x="490" y="33" text-anchor="middle" fill="#c4b5fd" font-size="10" font-weight="bold">EDT ENGINE</text>
+    <text x="490" y="48" text-anchor="middle" fill="#7c3aed" font-size="8">Decompressor / Compactor</text>
+    <text x="490" y="62" text-anchor="middle" fill="#64748b" font-size="7">Tessent EDT Core · edt_external=ON</text>
+
+    <!-- ── Clock source ── -->
+    <rect x="640" y="20" width="160" height="50" rx="6" fill="url(#gCard)" stroke="#f59e0b" stroke-width="1"/>
+    <text x="720" y="38" text-anchor="middle" fill="#f59e0b" font-size="9" font-weight="bold">CLOCK DOMAIN</text>
+    <text x="720" y="52" text-anchor="middle" fill="#a16207" font-size="7">ScanMasterClock: ETH_RXCLK</text>
+
+    <!-- ── Period badge ── -->
+    <rect x="850" y="25" width="100" height="40" rx="6" fill="rgba(16,185,129,.1)" stroke="rgba(16,185,129,.4)" stroke-width="1"/>
+    <text x="900" y="42" text-anchor="middle" fill="#10b981" font-size="9" font-weight="bold">20 ns Period</text>
+    <text x="900" y="56" text-anchor="middle" fill="#064e3b" font-size="7">50 MHz Scan Rate</text>
+
+    <!-- Arrows top row -->
+    <line x1="170" y1="45" x2="208" y2="45" stroke="#00d4ff" stroke-width="1.5" marker-end="url(#arrow)" opacity=".7"/>
+    <line x1="350" y1="45" x2="388" y2="45" stroke="#00d4ff" stroke-width="1.5" marker-end="url(#arrow)" opacity=".7"/>
+    <line x1="600" y1="45" x2="638" y2="45" stroke="#f59e0b" stroke-width="1.2" marker-end="url(#arrow)" opacity=".6"/>
+
+    <!-- EDT → down arrow -->
+    <line x1="490" y1="80" x2="490" y2="108" stroke="#7c3aed" stroke-width="1.5" marker-end="url(#arrow2)" opacity=".8"/>
+
+    <!-- ═══ Scan Chain Blocks ═══
+         Row 1: ch1–ch8  (y=120)
+         Row 2: ch9–ch16 (y=260)
+         Row 3: ch17–ch23 (y=400) -->
+
+    <!-- CHANNEL DATA -->
+    <script type="application/json" id="chain-data">
+    [
+      {"ch":1,"ff":234,"sin":"ETH_TXCLK","sout":"ETH_RXD3"},
+      {"ch":2,"ff":234,"sin":"ETH_TXD0","sout":"ETH_RXCTL"},
+      {"ch":3,"ff":234,"sin":"ETH_TXD1","sout":"ETH_MDIO"},
+      {"ch":4,"ff":234,"sin":"ETH_TXD2","sout":"CAN0_RX"},
+      {"ch":5,"ff":234,"sin":"ETH_TXD3","sout":"CAN0_TX"},
+      {"ch":6,"ff":234,"sin":"ETH_TXCTL","sout":"CAN0_STBY"},
+      {"ch":7,"ff":234,"sin":"ETH_MDCLK","sout":"CAN1_RX"},
+      {"ch":8,"ff":234,"sin":"SPI0_SCLK","sout":"CAN1_TX"},
+      {"ch":9,"ff":234,"sin":"SPI0_SCSN","sout":"UART2_TX"},
+      {"ch":10,"ff":234,"sin":"SPI0_IO0_SDO","sout":"UART3_TX"},
+      {"ch":11,"ff":234,"sin":"SPI0_IO1_SDI","sout":"GPIO0"},
+      {"ch":12,"ff":234,"sin":"SPI0_IO2_WP","sout":"GPIO1"},
+      {"ch":13,"ff":234,"sin":"SPI0_IO3_RST","sout":"GPIO2"},
+      {"ch":14,"ff":234,"sin":"SPI1_SCSN","sout":"GPIO3"},
+      {"ch":15,"ff":234,"sin":"SPI1_SDO","sout":"GPIO4"},
+      {"ch":16,"ff":234,"sin":"SPI1_SDI","sout":"GPIO5"},
+      {"ch":17,"ff":234,"sin":"SPI2_SCLK","sout":"GPIO6"},
+      {"ch":18,"ff":234,"sin":"SPI2_SCSN","sout":"GPIO7"},
+      {"ch":19,"ff":234,"sin":"SPI2_IO0_SDO","sout":"GPIO8"},
+      {"ch":20,"ff":234,"sin":"SPI2_IO1_SDI","sout":"NETCLK"},
+      {"ch":21,"ff":234,"sin":"SPI2_IO2_WP","sout":"GPO0"},
+      {"ch":22,"ff":234,"sin":"SPI2_IO3_RST","sout":"GPO1"},
+      {"ch":23,"ff":234,"sin":"SPI3_SCLK","sout":"GPO2","phy":true}
+    ]
+    </script>
+
+    <!-- Rows rendered by JS below -->
+    <g id="chain-blocks"></g>
+
+    <!-- Legend -->
+    <g transform="translate(30,665)">
+      <rect x="0" y="-8" width="12" height="12" rx="2" fill="#1e40af"/>
+      <text x="16" y="2" fill="#64748b" font-size="8">Core EDT Channel</text>
+      <rect x="120" y="-8" width="12" height="12" rx="2" fill="#5b21b6"/>
+      <text x="136" y="2" fill="#64748b" font-size="8">PHY EDT Channel</text>
+      <rect x="240" y="-8" width="12" height="12" rx="2" fill="rgba(16,185,129,.3)" stroke="rgba(16,185,129,.5)" stroke-width="1"/>
+      <text x="256" y="2" fill="#64748b" font-size="8">ScanIn Pin</text>
+      <rect x="330" y="-8" width="12" height="12" rx="2" fill="rgba(245,158,11,.2)" stroke="rgba(245,158,11,.4)" stroke-width="1"/>
+      <text x="346" y="2" fill="#64748b" font-size="8">ScanOut Pin</text>
+      <text x="500" y="2" fill="#7c3aed" font-size="8">ScanMasterClock: ETH_RXCLK · ScanLength: 234 FF · ScanInversion: 0</text>
+    </g>
+  </svg>
+
+  <div class="spacer"></div>
+  <div class="section-label">Signal / Pin Mapping</div>
+  <div class="two-col">
+    <div class="card">
+      <div class="card-title">Scan Input Pins (EDT Data In)</div>
+      <div style="display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.5rem;font-family:var(--font-mono);font-size:.7rem">
+        <span class="stat-badge badge-ok">ETH_TXCLK</span><span class="stat-badge badge-ok">ETH_TXD0</span>
+        <span class="stat-badge badge-ok">ETH_TXD1</span><span class="stat-badge badge-ok">ETH_TXD2</span>
+        <span class="stat-badge badge-ok">ETH_TXD3</span><span class="stat-badge badge-ok">ETH_TXCTL</span>
+        <span class="stat-badge badge-ok">ETH_MDCLK</span><span class="stat-badge badge-ok">SPI0_SCLK</span>
+        <span class="stat-badge badge-ok">SPI0_SCSN</span><span class="stat-badge badge-ok">SPI0_IO0_SDO</span>
+        <span class="stat-badge badge-ok">SPI0_IO1_SDI</span><span class="stat-badge badge-ok">SPI0_IO2_WP</span>
+        <span class="stat-badge badge-ok">SPI0_IO3_RST</span><span class="stat-badge badge-ok">SPI1_SCSN</span>
+        <span class="stat-badge badge-ok">SPI1_SDO</span><span class="stat-badge badge-ok">SPI1_SDI</span>
+        <span class="stat-badge badge-ok">SPI2_SCLK</span><span class="stat-badge badge-ok">SPI2_SCSN</span>
+        <span class="stat-badge badge-ok">SPI2_IO0_SDO</span><span class="stat-badge badge-ok">SPI2_IO1_SDI</span>
+        <span class="stat-badge badge-ok">SPI2_IO2_WP</span><span class="stat-badge badge-ok">SPI2_IO3_RST</span>
+        <span class="stat-badge badge-ok">SPI3_SCLK</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Scan Output Pins (EDT Data Out / Observe)</div>
+      <div style="display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.5rem;font-family:var(--font-mono);font-size:.7rem">
+        <span class="stat-badge badge-warn">ETH_RXD3</span><span class="stat-badge badge-warn">ETH_RXCTL</span>
+        <span class="stat-badge badge-warn">ETH_MDIO</span><span class="stat-badge badge-warn">CAN0_RX</span>
+        <span class="stat-badge badge-warn">CAN0_TX</span><span class="stat-badge badge-warn">CAN0_STBY</span>
+        <span class="stat-badge badge-warn">CAN1_RX</span><span class="stat-badge badge-warn">CAN1_TX</span>
+        <span class="stat-badge badge-warn">UART2_TX</span><span class="stat-badge badge-warn">UART3_TX</span>
+        <span class="stat-badge badge-warn">GPIO0</span><span class="stat-badge badge-warn">GPIO1</span>
+        <span class="stat-badge badge-warn">GPIO2</span><span class="stat-badge badge-warn">GPIO3</span>
+        <span class="stat-badge badge-warn">GPIO4</span><span class="stat-badge badge-warn">GPIO5</span>
+        <span class="stat-badge badge-warn">GPIO6</span><span class="stat-badge badge-warn">GPIO7</span>
+        <span class="stat-badge badge-warn">GPIO8</span><span class="stat-badge badge-warn">NETCLK</span>
+        <span class="stat-badge badge-warn">GPO0</span><span class="stat-badge badge-warn">GPO1</span>
+        <span class="stat-badge badge-warn">GPO2</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     TAB: SCAN CHAINS
+═══════════════════════════════════════════════════════════ -->
+<div id="tab-chains" class="tab-panel">
+  <div class="section-label">Scan Chain Details — 23 Chains × 234 FF = 5,382 Total FFs</div>
+
+  <div class="two-col" style="margin-bottom:1.5rem">
+    <div class="card" style="display:flex;align-items:center;gap:2rem">
+      <div class="ring-wrap">
+        <svg width="80" height="80" viewBox="0 0 80 80">
+          <circle cx="40" cy="40" r="34" fill="none" stroke="#1e3055" stroke-width="8"/>
+          <circle cx="40" cy="40" r="34" fill="none" stroke="url(#gAccent)" stroke-width="8"
+            stroke-dasharray="213.6" stroke-dashoffset="0" stroke-linecap="round" transform="rotate(-90 40 40)"/>
+        </svg>
+        <div class="ring-val">100%</div>
+        <div class="ring-label">Chain Coverage</div>
+      </div>
+      <div>
+        <div style="font-size:.75rem;color:var(--muted);font-family:var(--font-mono);line-height:2">
+          <div>Chains Verified: <span style="color:var(--ok)">23 / 23</span></div>
+          <div>Uniform Length: <span style="color:var(--accent)">YES (234 FF)</span></div>
+          <div>Inversion Errors: <span style="color:var(--ok)">0</span></div>
+          <div>Clock Domain: <span style="color:var(--warn)">Single (ETH_RXCLK)</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">EDT Block Distribution</div>
+      <div style="margin-top:.75rem;display:flex;flex-direction:column;gap:.6rem">
+        <div style="display:flex;align-items:center;gap.5rem;font-size:.75rem;font-family:var(--font-mono)">
+          <span style="color:var(--muted);width:140px">Core EDT Channels</span>
+          <div class="ch-len"><div class="ch-len-fill" style="width:95.6%"></div></div>
+          <span style="color:var(--accent)">ch1 – ch22 (22 chains)</span>
+        </div>
+        <div style="display:flex;align-items:center;gap.5rem;font-size:.75rem;font-family:var(--font-mono)">
+          <span style="color:var(--muted);width:140px">PHY EDT Channels</span>
+          <div class="ch-len"><div class="ch-len-fill" style="width:4.4%;background:linear-gradient(90deg,#5b21b6,#c4b5fd)"></div></div>
+          <span style="color:#c4b5fd">ch1 – phy (1 chain)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="padding:0;overflow:hidden">
+    <div class="chain-scroll">
+      <table class="chain-table">
+        <thead>
+          <tr>
+            <th>CH</th><th>Instance</th><th>Length (FFs)</th>
+            <th>ScanIn Pin</th><th>ScanOut Pin</th>
+            <th>Clock</th><th>Inversion</th><th>Type</th>
+          </tr>
+        </thead>
+        <tbody id="chain-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     TAB: FAULT SIMULATOR
+═══════════════════════════════════════════════════════════ -->
+<div id="tab-fault" class="tab-panel">
+  <div class="section-label">Stuck-At Fault Injection Simulator</div>
+
+  <div class="fault-grid">
+    <div>
+      <div class="card fault-controls">
+        <div>
+          <div class="ctrl-label">Target Scan Chain</div>
+          <select id="sim-chain">
+            <option value="all">ALL Chains (Broadcast)</option>
+            <option value="1">CH 01 — ETH_TXCLK → ETH_RXD3</option>
+            <option value="2">CH 02 — ETH_TXD0 → ETH_RXCTL</option>
+            <option value="3">CH 03 — ETH_TXD1 → ETH_MDIO</option>
+            <option value="4">CH 04 — ETH_TXD2 → CAN0_RX</option>
+            <option value="5">CH 05 — ETH_TXD3 → CAN0_TX</option>
+            <option value="6">CH 06 — ETH_TXCTL → CAN0_STBY</option>
+            <option value="7">CH 07 — ETH_MDCLK → CAN1_RX</option>
+            <option value="8">CH 08 — SPI0_SCLK → CAN1_TX</option>
+            <option value="9">CH 09 — SPI0_SCSN → UART2_TX</option>
+            <option value="10">CH 10 — SPI0_IO0_SDO → UART3_TX</option>
+            <option value="11">CH 11 — SPI0_IO1_SDI → GPIO0</option>
+            <option value="12">CH 12 — SPI0_IO2_WP → GPIO1</option>
+            <option value="13">CH 13 — SPI0_IO3_RST → GPIO2</option>
+            <option value="14">CH 14 — SPI1_SCSN → GPIO3</option>
+            <option value="15">CH 15 — SPI1_SDO → GPIO4</option>
+            <option value="16">CH 16 — SPI1_SDI → GPIO5</option>
+            <option value="17">CH 17 — SPI2_SCLK → GPIO6</option>
+            <option value="18">CH 18 — SPI2_SCSN → GPIO7</option>
+            <option value="19">CH 19 — SPI2_IO0_SDO → GPIO8</option>
+            <option value="20">CH 20 — SPI2_IO1_SDI → NETCLK</option>
+            <option value="21">CH 21 — SPI2_IO2_WP → GPO0</option>
+            <option value="22">CH 22 — SPI2_IO3_RST → GPO1</option>
+            <option value="23">CH 23 (PHY) — SPI3_SCLK → GPO2</option>
+          </select>
+        </div>
+        <div>
+          <div class="ctrl-label">Fault Type</div>
+          <select id="sim-fault">
+            <option value="sa0">Stuck-At-0 (SA0)</option>
+            <option value="sa1">Stuck-At-1 (SA1)</option>
+            <option value="both">Both SA0 + SA1</option>
+            <option value="random">Random Fault Injection</option>
+          </select>
+        </div>
+        <div>
+          <div class="ctrl-label">Fault Position (FF index in chain: 0–233)</div>
+          <input type="number" id="sim-pos" min="0" max="233" value="42" style="margin-bottom:.5rem"/>
+          <input type="range" id="sim-pos-range" min="0" max="233" value="42"/>
+        </div>
+        <div>
+          <div class="ctrl-label">Pattern Range</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem">
+            <input type="number" id="sim-pat-start" min="0" max="29624" value="0" placeholder="Start"/>
+            <input type="number" id="sim-pat-end" min="0" max="29624" value="29624" placeholder="End"/>
+          </div>
+        </div>
+        <div>
+          <div class="ctrl-label">Simulation Speed</div>
+          <select id="sim-speed">
+            <option value="fast">Fast (batch)</option>
+            <option value="normal" selected>Normal (animated)</option>
+            <option value="slow">Slow (step-by-step)</option>
+          </select>
+        </div>
+        <button class="run-btn" onclick="runFaultSim()">⚡ Run Fault Simulation</button>
+        <button class="run-btn" style="background:rgba(239,68,68,.2);border:1px solid #ef4444;box-shadow:none;color:#ef4444" onclick="clearLog()">✕ Clear Log</button>
+      </div>
+    </div>
+
+    <div>
+      <div class="card" style="padding:0;overflow:hidden;height:100%">
+        <div style="padding:.75rem 1rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+          <span style="font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)">Tester Fail Log Output</span>
+          <span style="display:flex;align-items:center;gap:.4rem;font-size:.7rem;font-family:var(--font-mono);color:var(--ok)">
+            <span class="ping"></span> <span id="log-status">Ready</span>
+          </span>
+        </div>
+        <div class="fault-log" id="fault-log">
+          <span class="log-info">// STIL Fault Injection Simulator — MY_DES EDT Scan</span><br>
+          <span class="log-dim">// Source: Production_SCAN_stuck_at_Example_3.stil</span><br>
+          <span class="log-dim">// Chains: 23 × 234 FF | Clock: ETH_RXCLK | Test: EDT_SCAN_TEST</span><br>
+          <span class="log-dim">// Configure parameters and click Run Fault Simulation...</span><br>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="spacer"></div>
+  <div class="section-label">Fault Statistics</div>
+  <div class="stats-grid" id="fault-stats">
+    <div class="card"><div class="card-title">Faults Injected</div><div class="card-value" id="stat-injected">—</div></div>
+    <div class="card"><div class="card-title">Faults Detected</div><div class="card-value" id="stat-detected" style="color:var(--ok)">—</div></div>
+    <div class="card"><div class="card-title">Faults Missed</div><div class="card-value" id="stat-missed" style="color:var(--err)">—</div></div>
+    <div class="card"><div class="card-title">Fault Coverage</div><div class="card-value" id="stat-coverage" style="color:var(--accent)">—</div></div>
+    <div class="card"><div class="card-title">ATPG Patterns Used</div><div class="card-value" id="stat-patterns">—</div></div>
+    <div class="card"><div class="card-title">Simulation Time</div><div class="card-value" id="stat-time">—</div></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     TAB: HEATMAP
+═══════════════════════════════════════════════════════════ -->
+<div id="tab-heatmap" class="tab-panel">
+  <div class="section-label">Fault Distribution Heatmap — 23 Chains × 234 FF</div>
+  <div class="two-col" style="margin-bottom:1.5rem">
+    <div class="card">
+      <div class="card-title">Heatmap Mode</div>
+      <div style="display:flex;gap:.5rem;margin-top:.5rem;flex-wrap:wrap">
+        <button class="nav-pill active" id="hm-random" onclick="drawHeatmap('random',this)">Random Fault</button>
+        <button class="nav-pill" id="hm-sa0" onclick="drawHeatmap('sa0',this)">Stuck-At-0 Bias</button>
+        <button class="nav-pill" id="hm-sa1" onclick="drawHeatmap('sa1',this)">Stuck-At-1 Bias</button>
+        <button class="nav-pill" id="hm-center" onclick="drawHeatmap('center',this)">Center-Chain Bias</button>
+        <button class="nav-pill" id="hm-edge" onclick="drawHeatmap('edge',this)">Edge-FF Bias</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Heatmap Legend</div>
+      <div class="heatmap-legend">
+        <span>Low Fault Density</span>
+        <div class="legend-bar"></div>
+        <span>High Fault Density</span>
+      </div>
+      <div style="margin-top:.75rem;font-size:.7rem;color:var(--muted);font-family:var(--font-mono);line-height:1.8">
+        X-axis: FF position (0–233) · Y-axis: Scan Chain (CH01–CH23)
+      </div>
+    </div>
+  </div>
+  <div class="card" style="padding:1rem">
+    <canvas id="heatmap-canvas" width="1000" height="350"></canvas>
+  </div>
+</div>
+
+</main>
+
+<script>
+/* ═══════════════════════════════════════════════
+   DATA
+═══════════════════════════════════════════════ */
+const chains = [
+  {ch:1, ff:234, sin:"ETH_TXCLK",    sout:"ETH_RXD3",   phy:false},
+  {ch:2, ff:234, sin:"ETH_TXD0",     sout:"ETH_RXCTL",  phy:false},
+  {ch:3, ff:234, sin:"ETH_TXD1",     sout:"ETH_MDIO",   phy:false},
+  {ch:4, ff:234, sin:"ETH_TXD2",     sout:"CAN0_RX",    phy:false},
+  {ch:5, ff:234, sin:"ETH_TXD3",     sout:"CAN0_TX",    phy:false},
+  {ch:6, ff:234, sin:"ETH_TXCTL",    sout:"CAN0_STBY",  phy:false},
+  {ch:7, ff:234, sin:"ETH_MDCLK",    sout:"CAN1_RX",    phy:false},
+  {ch:8, ff:234, sin:"SPI0_SCLK",    sout:"CAN1_TX",    phy:false},
+  {ch:9, ff:234, sin:"SPI0_SCSN",    sout:"UART2_TX",   phy:false},
+  {ch:10,ff:234, sin:"SPI0_IO0_SDO", sout:"UART3_TX",   phy:false},
+  {ch:11,ff:234, sin:"SPI0_IO1_SDI", sout:"GPIO0",      phy:false},
+  {ch:12,ff:234, sin:"SPI0_IO2_WP",  sout:"GPIO1",      phy:false},
+  {ch:13,ff:234, sin:"SPI0_IO3_RST", sout:"GPIO2",      phy:false},
+  {ch:14,ff:234, sin:"SPI1_SCSN",    sout:"GPIO3",      phy:false},
+  {ch:15,ff:234, sin:"SPI1_SDO",     sout:"GPIO4",      phy:false},
+  {ch:16,ff:234, sin:"SPI1_SDI",     sout:"GPIO5",      phy:false},
+  {ch:17,ff:234, sin:"SPI2_SCLK",    sout:"GPIO6",      phy:false},
+  {ch:18,ff:234, sin:"SPI2_SCSN",    sout:"GPIO7",      phy:false},
+  {ch:19,ff:234, sin:"SPI2_IO0_SDO", sout:"GPIO8",      phy:false},
+  {ch:20,ff:234, sin:"SPI2_IO1_SDI", sout:"NETCLK",     phy:false},
+  {ch:21,ff:234, sin:"SPI2_IO2_WP",  sout:"GPO0",       phy:false},
+  {ch:22,ff:234, sin:"SPI2_IO3_RST", sout:"GPO1",       phy:false},
+  {ch:23,ff:234, sin:"SPI3_SCLK",    sout:"GPO2",       phy:true},
+];
+
+/* ── Tab switching ── */
+function showTab(name) {
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-pill').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  event.target.classList.add('active');
+  if(name==='heatmap') setTimeout(()=>drawHeatmap('random',document.getElementById('hm-random')),50);
+}
+
+/* ══════════════════════════════════════════════
+   BUILD CHAIN TABLE
+════════════════════════════════════════════════ */
+(function buildChainTable(){
+  const tbody = document.getElementById('chain-tbody');
+  chains.forEach(c=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="ch-num">CH ${String(c.ch).padStart(2,'0')}</td>
+      <td style="color:var(--muted);font-size:.68rem">${c.phy?'phy_inst':'core_inst'} · edt_block_channel${c.ch}</td>
+      <td>
+        <div class="ch-len"><div class="ch-len-fill" style="width:100%"></div></div>
+        <span style="color:var(--text)">${c.ff} FF</span>
+      </td>
+      <td class="ch-in">${c.sin}</td>
+      <td class="ch-out">${c.sout}</td>
+      <td style="color:var(--warn)">ETH_RXCLK</td>
+      <td style="color:var(--ok)">0 (none)</td>
+      <td><span class="stat-badge ${c.phy?'badge-warn':'badge-info'}" style="font-size:.65rem">${c.phy?'PHY':'CORE'}</span></td>`;
+    tbody.appendChild(tr);
+  });
+})();
+
+/* ══════════════════════════════════════════════
+   BUILD ARCH SVG CHAIN BLOCKS
+════════════════════════════════════════════════ */
+(function buildArchBlocks(){
+  const g = document.getElementById('chain-blocks');
+  const COLS=8, ROW_Y=[120,270,420], W=115, H=85, GAP=10, startX=30;
+  chains.forEach((c,i)=>{
+    const col=i%COLS, row=Math.floor(i/COLS);
+    const x=startX+col*(W+GAP), y=ROW_Y[row]||560;
+    const isLast=col===COLS-1||i===chains.length-1;
+    const fill=c.phy?'rgba(91,33,182,.35)':'rgba(30,64,175,.35)';
+    const stroke=c.phy?'#7c3aed':'#1d4ed8';
+
+    // vertical arrow from EDT
+    if(i<COLS){ // row 0
+      const arrowX=x+W/2;
+      const el=document.createElementNS('http://www.w3.org/2000/svg','line');
+      el.setAttribute('x1',490); el.setAttribute('y1',108);
+      el.setAttribute('x2',arrowX); el.setAttribute('y2',y-2);
+      el.setAttribute('stroke','#7c3aed'); el.setAttribute('stroke-width','0.8');
+      el.setAttribute('stroke-dasharray','4 3'); el.setAttribute('opacity','0.4');
+      g.appendChild(el);
+    }
+
+    // block
+    const rect=document.createElementNS('http://www.w3.org/2000/svg','rect');
+    Object.entries({x,y,width:W,height:H,rx:6,fill,stroke,'stroke-width':1}).forEach(([k,v])=>rect.setAttribute(k,v));
+    g.appendChild(rect);
+
+    const addText=(txt,dy,col2,size,weight)=>{
+      const t=document.createElementNS('http://www.w3.org/2000/svg','text');
+      t.setAttribute('x',x+W/2); t.setAttribute('y',y+dy);
+      t.setAttribute('text-anchor','middle');
+      t.setAttribute('fill',col2); t.setAttribute('font-size',size||8);
+      if(weight) t.setAttribute('font-weight',weight);
+      t.textContent=txt; g.appendChild(t);
+    };
+    addText(`CH ${String(c.ch).padStart(2,'0')}`,18,'#93c5fd',9,'bold');
+    addText(`${c.ff} FFs`,30,'#60a5fa',8);
+    addText(`IN: ${c.sin}`,44,'rgba(16,185,129,.8)',7);
+    addText(`OUT: ${c.sout}`,56,'rgba(245,158,11,.8)',7);
+    addText(c.phy?'[PHY]':'[CORE]',70,'rgba(100,116,139,.7)',7);
+  });
+})();
+
+/* ══════════════════════════════════════════════
+   FAULT SIMULATOR
+════════════════════════════════════════════════ */
+// sync range & number
+document.getElementById('sim-pos-range').oninput=e=>{document.getElementById('sim-pos').value=e.target.value};
+document.getElementById('sim-pos').oninput=e=>{document.getElementById('sim-pos-range').value=e.target.value};
+
+function log(msg,cls='log-dim'){
+  const el=document.getElementById('fault-log');
+  el.innerHTML+=`<span class="${cls}">${msg}</span><br>`;
+  el.scrollTop=el.scrollHeight;
+}
+function clearLog(){
+  document.getElementById('fault-log').innerHTML='';
+  ['injected','detected','missed','coverage','patterns','time'].forEach(id=>{
+    document.getElementById('stat-'+id).textContent='—';
+  });
+}
+
+async function runFaultSim(){
+  const chainSel=document.getElementById('sim-chain').value;
+  const faultType=document.getElementById('sim-fault').value;
+  const pos=parseInt(document.getElementById('sim-pos').value);
+  const patStart=parseInt(document.getElementById('sim-pat-start').value);
+  const patEnd=parseInt(document.getElementById('sim-pat-end').value);
+  const speed=document.getElementById('sim-speed').value;
+  const delay=speed==='slow'?300:speed==='normal'?60:5;
+
+  document.getElementById('log-status').textContent='Running...';
+  const t0=Date.now();
+
+  log('');
+  log(`════════════════════════════════════════════════════`,'log-info');
+  log(`  FAULT INJECTION SIMULATION — MY_DES EDT Scan`,'log-info');
+  log(`════════════════════════════════════════════════════`,'log-info');
+
+  const targetChains=chainSel==='all'?chains:chains.filter(c=>c.ch===parseInt(chainSel));
+  const types=faultType==='both'?['SA0','SA1']:faultType==='random'?[Math.random()>.5?'SA0':'SA1']:[faultType.toUpperCase()];
+  const patCount=patEnd-patStart+1;
+
+  let injected=0, detected=0, missed=0;
+
+  log(`[INIT] Target: ${chainSel==='all'?'ALL 23 chains':'CH '+chainSel}`,'log-dim');
+  log(`[INIT] Fault type: ${types.join('+')} | FF position: ${pos}`,'log-dim');
+  log(`[INIT] Pattern range: ${patStart} → ${patEnd} (${patCount} patterns)`,'log-dim');
+  log(`[INIT] Clock: ETH_RXCLK | Period: 20ns`,'log-dim');
+  log(``);
+
+  for(const chain of targetChains){
+    await new Promise(r=>setTimeout(r,delay));
+    log(`[SCAN] CH ${String(chain.ch).padStart(2,'0')} | ${chain.sin} → ${chain.sout} | ${chain.ff} FF`,'log-info');
+
+    for(const ft of types){
+      injected++;
+      await new Promise(r=>setTimeout(r,delay/2));
+
+      // Simulate detection based on position and type
+      const detectionProb = ft==='SA0'
+        ? (pos<100?0.95:pos<180?0.88:0.72)
+        : (pos<50?0.92:pos<150?0.91:0.78);
+      const isDetected = Math.random()<detectionProb;
+      const ffName = `FF[${pos}]@${chain.sin}`;
+
+      if(isDetected){
+        detected++;
+        const patHit=patStart+Math.floor(Math.random()*patCount);
+        log(`  [DETECT] ${ft} @ ${ffName} → FAIL at Pattern ${patHit} | SCAN_OUT mismatch on ${chain.sout}`,'log-ok');
+      } else {
+        missed++;
+        log(`  [ESCAPE] ${ft} @ ${ffName} → NOT DETECTED in ${patCount} patterns`,'log-err');
+      }
+    }
+  }
+
+  const elapsed=Date.now()-t0;
+  const coverage=((detected/injected)*100).toFixed(2);
+
+  log(``);
+  log(`════════════════════════════════════════════════════`,'log-info');
+  log(`  SIMULATION COMPLETE`,'log-info');
+  log(`  Injected: ${injected} | Detected: ${detected} | Missed: ${missed}`,'log-warn');
+  log(`  Fault Coverage: ${coverage}%`,'log-ok');
+  log(`════════════════════════════════════════════════════`,'log-info');
+
+  document.getElementById('stat-injected').textContent=injected;
+  document.getElementById('stat-detected').textContent=detected;
+  document.getElementById('stat-missed').textContent=missed;
+  document.getElementById('stat-coverage').textContent=coverage+'%';
+  document.getElementById('stat-patterns').textContent=patCount.toLocaleString();
+  document.getElementById('stat-time').textContent=(elapsed/1000).toFixed(2)+'s';
+  document.getElementById('log-status').textContent='Done';
+}
+
+/* ══════════════════════════════════════════════
+   HEATMAP
+════════════════════════════════════════════════ */
+function drawHeatmap(mode, btn){
+  document.querySelectorAll('#tab-heatmap .nav-pill').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+
+  const canvas=document.getElementById('heatmap-canvas');
+  const ctx=canvas.getContext('2d');
+  const W=canvas.width, H=canvas.height;
+  const nChains=23, nFF=234;
+  const cellW=W/nFF, cellH=(H-40)/nChains;
+  const PAD_LEFT=50, PAD_TOP=30;
+
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='#070b14'; ctx.fillRect(0,0,W,H);
+
+  // axis labels
+  ctx.fillStyle='#64748b'; ctx.font='10px Space Mono';
+  ctx.fillText('FF Index →',PAD_LEFT,15);
+  for(let i=0;i<nFF;i+=40){
+    ctx.fillStyle='#475569'; ctx.font='8px Space Mono';
+    ctx.fillText(i, PAD_LEFT+i*((W-PAD_LEFT)/nFF), PAD_TOP-4);
+  }
+
+  for(let cy=0;cy<nChains;cy++){
+    // chain label
+    ctx.fillStyle='#475569'; ctx.font='8px Space Mono';
+    ctx.fillText(`CH${String(cy+1).padStart(2,'0')}`, 2, PAD_TOP+cy*cellH+cellH/2+3);
+
+    for(let fx=0;fx<nFF;fx++){
+      let intensity=0;
+      if(mode==='random') intensity=Math.random();
+      else if(mode==='sa0') intensity=Math.random()*(fx<117?1:.4);
+      else if(mode==='sa1') intensity=Math.random()*(fx>=117?1:.4);
+      else if(mode==='center') {
+        const distCenter=Math.abs(cy-11)/11;
+        intensity=Math.random()*(1-distCenter*.6);
+      } else if(mode==='edge') {
+        const distEdge=Math.min(cy,22-cy)/11;
+        intensity=Math.random()*(1-distEdge*.7)+distEdge*.3;
+      }
+
+      // color map: dark blue → purple → red → amber
+      let r,g,b;
+      if(intensity<.25){r=Math.floor(intensity*4*60);g=0;b=Math.floor(60+intensity*4*120);}
+      else if(intensity<.5){const t=(intensity-.25)*4;r=Math.floor(60+t*120);g=0;b=Math.floor(180-t*80);}
+      else if(intensity<.75){const t=(intensity-.5)*4;r=Math.floor(180+t*75);g=Math.floor(t*30);b=Math.floor(100-t*100);}
+      else{const t=(intensity-.75)*4;r=240;g=Math.floor(30+t*129);b=Math.floor(t*11);}
+
+      ctx.fillStyle=`rgb(${r},${g},${b})`;
+      ctx.fillRect(PAD_LEFT+fx*((W-PAD_LEFT)/nFF), PAD_TOP+cy*cellH, Math.max(1,(W-PAD_LEFT)/nFF-.5), cellH-.5);
+    }
+  }
+}
+
+// Initial render
+window.addEventListener('load',()=>{
+  // pre-render heatmap canvas size
+  const canvas=document.getElementById('heatmap-canvas');
+  canvas.width=1000; canvas.height=350;
+});
+</script>
+</body>
+</html>
